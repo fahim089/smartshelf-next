@@ -2,17 +2,24 @@ import { withAdmin } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { fetchImages } from '@/lib/products'
 import { ok, notFound, serverErr } from '@/lib/response'
+import { unlink } from 'fs/promises'
+import path from 'path'
 
 export const DELETE = withAdmin(async (req, { params }) => {
   try {
-    const productId = parseInt(params.id)
-    const imageId   = parseInt(params.imageId)
-    const [r] = await db.execute(
-      'DELETE FROM product_images WHERE id=? AND product_id=?',
-      [imageId, productId]
+    const [rows] = await db.execute(
+      'SELECT image_url FROM product_images WHERE id=? AND product_id=?',
+      [params.imageId, params.id]
     )
-    if (!r.affectedRows) return notFound('Image not found.')
-    const images = await fetchImages(productId)
+    if (!rows.length) return notFound('Image not found.')
+
+    // Delete file from disk
+    const filename = rows[0].image_url.replace(/.*\/uploads\//, '').replace(/^uploads\//, '')
+    const UPLOAD_DIR = process.env.UPLOAD_DIR || 'public/uploads'
+    try { await unlink(path.join(UPLOAD_DIR, filename)) } catch {}
+
+    await db.execute('DELETE FROM product_images WHERE id=?', [params.imageId])
+    const images = await fetchImages(params.id)
     return ok(images)
   } catch (e) { return serverErr(e) }
 })

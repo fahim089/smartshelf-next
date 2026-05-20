@@ -67,14 +67,7 @@ export default function AdminLayout({ children }) {
             {!collapsed && <span style={{ fontSize:16, fontWeight:800, color:'#fff', whiteSpace:'nowrap' }}>Smart<span style={{ color:'var(--brand)' }}>Shelf</span></span>}
           </div>
 
-          {/* User pill */}
-          {!collapsed && (
-            <div style={{ margin:'12px 12px 0', padding:'10px 12px', background:'#1e293b', borderRadius:'var(--r-md)' }}>
-              <div style={{ fontSize:11, color:'var(--sidebar-muted)' }}>Signed in as</div>
-              <div style={{ fontSize:13, fontWeight:600, color:'#fff', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user?.name}</div>
-              <div style={{ fontSize:11, color:'var(--brand)', marginTop:1 }}>Administrator</div>
-            </div>
-          )}
+
 
           {/* Nav */}
           <nav style={{ flex:1, padding:'12px 8px', overflowY:'auto' }}>

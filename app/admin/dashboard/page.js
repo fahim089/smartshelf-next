@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
   Package, ShoppingCart, Truck, RotateCcw,
   Users, Tag, TrendingUp, AlertTriangle, ArrowRight
@@ -128,7 +129,7 @@ export default function AdminDashboard() {
               ))}
               {data.low_stock_products.length > 8 && (
                 <div style={{ padding: '9px 16px', borderTop: '1px solid var(--border)' }}>
-                  <Link to="/admin/products" style={{ fontSize: 12, color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>View all <ArrowRight size={12} /></Link>
+                  <Link href="/admin/products" style={{ fontSize: 12, color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>View all <ArrowRight size={12} /></Link>
                 </div>
               )}
             </>
@@ -170,7 +171,7 @@ export default function AdminDashboard() {
       <div className="card">
         <div className="card-header">
           <span className="card-title">Recent Sales</span>
-          <Link to="/admin/sales" style={{ fontSize: 12, color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>View all <ArrowRight size={12} /></Link>
+          <Link href="/admin/sales" style={{ fontSize: 12, color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>View all <ArrowRight size={12} /></Link>
         </div>
         {!data?.recent_sales?.length ? (
           <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No sales recorded yet.</div>
