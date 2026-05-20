@@ -63,6 +63,13 @@ export default function StaffLayout({ children }) {
             {!collapsed && <span style={{ fontSize:16, fontWeight:800, color:'#0f172a', whiteSpace:'nowrap' }}>Smart<span style={{ color:'#16a34a' }}>Shelf</span></span>}
           </div>
 
+          {!collapsed && (
+            <div style={{ margin:'12px 12px 0', padding:'10px 12px', background:'#f0fdf4', borderRadius:'var(--r-md)', border:'1px solid #bbf7d0' }}>
+              <div style={{ fontSize:11, color:'#64748b' }}>Signed in as</div>
+              <div style={{ fontSize:13, fontWeight:600, color:'#0f172a', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user?.name}</div>
+              <div style={{ fontSize:11, color:'#16a34a', marginTop:1 }}>Staff Member</div>
+            </div>
+          )}
 
           <nav style={{ flex:1, padding:'12px 8px', overflowY:'auto' }}>
             {NAV.map(({ href, icon:Icon, label }) => {

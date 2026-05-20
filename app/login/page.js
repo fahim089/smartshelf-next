@@ -13,7 +13,7 @@ const blur  = e => { e.target.style.borderColor='#e2e8f0'; e.target.style.boxSha
 
 export default function LoginPage() {
   const router = useRouter()
-  const { user, isAuthenticated, setAuth } = useAuthStore()
+  const { isAuthenticated, setAuth } = useAuthStore()
   const [tab,      setTab]      = useState('login')
   const [login,    setLogin]    = useState({ email:'admin@demo.com', password:'admin123' })
   const [reg,      setReg]      = useState({ name:'', email:'', password:'', confirm:'' })
@@ -23,16 +23,15 @@ export default function LoginPage() {
   const [showConf, setShowConf] = useState(false)
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      router.replace(user.role === 'admin' ? '/admin/dashboard' : '/staff/dashboard')
-    }
-  }, [isAuthenticated, user])
+    if (isAuthenticated) router.replace('/')
+  }, [isAuthenticated])
 
   const handleLogin = async e => {
     e.preventDefault(); setError(''); setLoading(true)
     try {
       const { data } = await authAPI.login(login)
       setAuth(data.data.user, data.data.access_token, data.data.refresh_token)
+      router.replace(data.data.user.role === 'admin' ? '/admin/dashboard' : '/staff/dashboard')
     } catch (err) { setError(err.response?.data?.message || 'Invalid email or password.') }
     finally { setLoading(false) }
   }
@@ -117,50 +116,34 @@ export default function LoginPage() {
               <button type="submit" disabled={loading} style={btnSt}>{loading?'Creating…':'Create Staff Account'}</button>
             </form>
           )}
+
+          <div style={{ marginTop:20, padding:'12px 14px', background:'#f8fafc', borderRadius:10, border:'1px solid #e2e8f0' }}>
+            <p style={{ fontSize:11, color:'#64748b', marginBottom:6, fontWeight:600 }}>DEMO ACCOUNTS</p>
+            <p style={{ fontSize:12, fontFamily:'monospace', color:'#475569', marginBottom:3 }}>Admin: admin@demo.com / admin123</p>
+            <p style={{ fontSize:12, fontFamily:'monospace', color:'#475569' }}>Staff: alice@demo.com / staff123</p>
+          </div>
         </div>
       </div>
 
-      {/* Right — image panel */}
-      <div className="login-right" style={{ 
-        flex: 1, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        padding: 30,
-        background: 'linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%)'
-      }}>
-        <img 
-          src="/login.png" 
-          alt="SmartShelf Inventory Management" 
-          style={{
-            width: '100%',
-            maxWidth: 550,
-            height: 'auto',
-            objectFit: 'contain',
-            animation: 'float 5s ease-in-out infinite',
-          }}
-        />
+      {/* Right — branding */}
+      <div className="login-right" style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:30, background:'#0f172a' }}>
+        <div style={{ maxWidth:420, textAlign:'center' }}>
+          <div style={{ width:72, height:72, borderRadius:20, background:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 28px' }}>
+            <Store size={34} color="#fff" />
+          </div>
+          <h2 style={{ fontSize:32, fontWeight:800, color:'#fff', marginBottom:14, lineHeight:1.2 }}>Smarter inventory<br/>management</h2>
+          <p style={{ color:'#64748b', fontSize:15, lineHeight:1.7, marginBottom:40 }}>Track products, manage sales, monitor staff — all in one place.</p>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+            {[['10k+','Products tracked'],['500+','Daily transactions'],['Unlimited','Staff accounts'],['99.9%','System uptime']].map(([v,l])=>(
+              <div key={l} style={{ background:'#1e293b', borderRadius:12, padding:'16px 20px', border:'1px solid #334155' }}>
+                <div style={{ fontSize:22, fontWeight:800, color:'#2563eb' }}>{v}</div>
+                <div style={{ fontSize:12, color:'#64748b', marginTop:3 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-
-      <style>{`
-        @media(max-width:900px){
-          .login-right{
-            display:none!important;
-          }
-        }
-        
-        @keyframes float {
-          0% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-          100% {
-            transform: translateY(0px);
-          }
-        }
-      `}</style>
+      <style>{`@media(max-width:900px){.login-right{display:none!important}}`}</style>
     </div>
   )
 }

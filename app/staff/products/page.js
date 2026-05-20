@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Package, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Package, Search, X } from 'lucide-react'
 import { staffAPI } from '@/lib/api'
 import { resolveImageUrl } from '@/lib/utils'
 import { formatCurrency, stockBadge } from '@/lib/utils'
@@ -15,13 +15,10 @@ export default function StaffProducts() {
   const [page,       setPage]       = useState(1)
   const [loading,    setLoading]    = useState(true)
   const [detail,     setDetail]     = useState(null)
-  const [slideIdx,   setSlideIdx]   = useState(0)
-
-  useEffect(() => { setSlideIdx(0) }, [detail])
 
   const load = useCallback(() => {
     setLoading(true)
-    const params = { page, limit: 16 }
+    const params = { page, limit: 12 }
     if (search) params.search = search
     if (catFilter) params.category_id = catFilter
     staffAPI.getProducts(params)
@@ -36,7 +33,7 @@ export default function StaffProducts() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>Products</h1>
-        <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>{pagination.total || 0} products</p>
+        <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>{pagination.total || 0} products · Read only</p>
       </div>
 
       {/* Filters */}
@@ -107,40 +104,12 @@ export default function StaffProducts() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
           onClick={e => e.target === e.currentTarget && setDetail(null)}>
           <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 400, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,.1)' }}>
-            {/* Image slider */}
-            {(() => {
-              const imgs = detail.images || []
-              const multi = imgs.length > 1
-              return (
-                <div style={{ height: 200, background: '#f8fafc', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {imgs.length > 0
-                    ? <img src={resolveImageUrl(imgs[slideIdx].image_url)} alt={detail.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
-                    : <Package size={48} color="#cbd5e1" />
-                  }
-                  {multi && (
-                    <>
-                      <button onClick={() => setSlideIdx(i => (i - 1 + imgs.length) % imgs.length)}
-                        style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,.4)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-                        <ChevronLeft size={16} />
-                      </button>
-                      <button onClick={() => setSlideIdx(i => (i + 1) % imgs.length)}
-                        style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,.4)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-                        <ChevronRight size={16} />
-                      </button>
-                      <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 5 }}>
-                        {imgs.map((_, i) => (
-                          <button key={i} onClick={() => setSlideIdx(i)}
-                            style={{ width: i === slideIdx ? 16 : 6, height: 6, borderRadius: 3, background: i === slideIdx ? '#fff' : 'rgba(255,255,255,.55)', border: 'none', cursor: 'pointer', transition: 'all .2s', padding: 0 }} />
-                        ))}
-                      </div>
-                      <div style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,.4)', color: '#fff', fontSize: 11, padding: '2px 7px', borderRadius: 10 }}>
-                        {slideIdx + 1}/{imgs.length}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )
-            })()}
+            <div style={{ height: 200, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+              {detail.images?.[0]
+                ? <img src={resolveImageUrl(detail.images[0].image_url)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <Package size={48} color="#cbd5e1" />
+              }
+            </div>
             <div style={{ padding: 20 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div>
