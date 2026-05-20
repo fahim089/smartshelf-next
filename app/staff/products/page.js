@@ -107,38 +107,49 @@ export default function StaffProducts() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
           onClick={e => e.target === e.currentTarget && setDetail(null)}>
           <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 400, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,.1)' }}>
-            {/* Image slider */}
+            {/* Image viewer */}
             {(() => {
               const imgs = detail.images || []
+              const safeIdx = Math.min(slideIdx, Math.max(0, imgs.length - 1))
               const multi = imgs.length > 1
               return (
-                <div style={{ height: 200, background: '#f8fafc', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {imgs.length > 0
-                    ? <img src={resolveImageUrl(imgs[slideIdx].image_url)} alt={detail.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
-                    : <Package size={48} color="#cbd5e1" />
-                  }
+                <>
+                  {/* Main image */}
+                  <div style={{ height: 200, background: '#f8fafc', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {imgs.length > 0
+                      ? <img src={resolveImageUrl(imgs[safeIdx].image_url)} alt={detail.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
+                      : <Package size={48} color="#cbd5e1" />
+                    }
+                    {multi && (
+                      <>
+                        <button onClick={e => { e.stopPropagation(); setSlideIdx(i => (i - 1 + imgs.length) % imgs.length) }}
+                          style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,.4)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                          <ChevronLeft size={16} />
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); setSlideIdx(i => (i + 1) % imgs.length) }}
+                          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,.4)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                          <ChevronRight size={16} />
+                        </button>
+                        <div style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,.4)', color: '#fff', fontSize: 11, padding: '2px 7px', borderRadius: 10 }}>
+                          {safeIdx + 1}/{imgs.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {/* Thumbnail strip — shows all images */}
                   {multi && (
-                    <>
-                      <button onClick={() => setSlideIdx(i => (i - 1 + imgs.length) % imgs.length)}
-                        style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,.4)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-                        <ChevronLeft size={16} />
-                      </button>
-                      <button onClick={() => setSlideIdx(i => (i + 1) % imgs.length)}
-                        style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,.4)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-                        <ChevronRight size={16} />
-                      </button>
-                      <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 5 }}>
-                        {imgs.map((_, i) => (
-                          <button key={i} onClick={() => setSlideIdx(i)}
-                            style={{ width: i === slideIdx ? 16 : 6, height: 6, borderRadius: 3, background: i === slideIdx ? '#fff' : 'rgba(255,255,255,.55)', border: 'none', cursor: 'pointer', transition: 'all .2s', padding: 0 }} />
-                        ))}
-                      </div>
-                      <div style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,.4)', color: '#fff', fontSize: 11, padding: '2px 7px', borderRadius: 10 }}>
-                        {slideIdx + 1}/{imgs.length}
-                      </div>
-                    </>
+                    <div style={{ display: 'flex', gap: 6, padding: '8px 12px', background: '#f1f5f9', overflowX: 'auto' }}>
+                      {imgs.map((img, i) => (
+                        <button key={i} onClick={e => { e.stopPropagation(); setSlideIdx(i) }}
+                          style={{ width: 52, height: 52, flexShrink: 0, border: `2px solid ${i === safeIdx ? '#16a34a' : 'transparent'}`, borderRadius: 8, overflow: 'hidden', cursor: 'pointer', padding: 0, background: '#e2e8f0' }}>
+                          <img src={resolveImageUrl(img.image_url)} alt={`Image ${i + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={e => { e.target.style.display = 'none' }} />
+                        </button>
+                      ))}
+                    </div>
                   )}
-                </div>
+                </>
               )
             })()}
             <div style={{ padding: 20 }}>
