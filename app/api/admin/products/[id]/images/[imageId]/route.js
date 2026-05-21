@@ -13,9 +13,9 @@ export const DELETE = withAdmin(async (req, { params }) => {
     )
     if (!rows.length) return notFound('Image not found.')
 
-    // Delete file from disk
-    const filename = rows[0].image_url.replace(/.*\/uploads\//, '').replace(/^uploads\//, '')
-    const UPLOAD_DIR = process.env.UPLOAD_DIR || 'public/uploads'
+    // Delete file from disk — extract bare filename and use absolute path
+    const filename = rows[0].image_url.replace(/.*[/\\]uploads[/\\]/, '').replace(/.*[/\\]/, '')
+    const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
     try { await unlink(path.join(UPLOAD_DIR, filename)) } catch {}
 
     await db.execute('DELETE FROM product_images WHERE id=?', [params.imageId])

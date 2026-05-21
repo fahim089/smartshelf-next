@@ -1,12 +1,13 @@
 import { withAdmin } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { buildImageUrl, fetchImages } from '@/lib/products'
+import { fetchImages } from '@/lib/products'
 import { ok, err, serverErr } from '@/lib/response'
 import { writeFile } from 'fs/promises'
 import { existsSync, mkdirSync } from 'fs'
 import path from 'path'
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || 'public/uploads'
+// Always use an absolute path so it works regardless of working directory
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
 
 async function saveFile(file) {
   if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true })
