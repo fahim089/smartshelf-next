@@ -2,29 +2,24 @@ import { withAdmin } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { fetchImages } from '@/lib/products'
 import { ok, err, serverErr } from '@/lib/response'
-import { writeFile } from 'fs/promises'
-import { existsSync, mkdirSync } from 'fs'
+import { writeFile, mkdir } from 'fs/promises'
+import { existsSync } from 'fs'
 import path from 'path'
-
-// Always use an absolute path so it works regardless of working directory
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
-
-async function saveFile(file) {
-  if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true })
-  const ext      = path.extname(file.name).toLowerCase()
-  const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`
-  const filePath = path.join(UPLOAD_DIR, filename)
-  const bytes    = await file.arrayBuffer()
-  await writeFile(filePath, Buffer.from(bytes))
-  return filename
-}
 
 export const POST = withAdmin(async (req, { params }) => {
   try {
+    const productId  = params.id
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+
+    // Ensure uploads directory exists
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true })
+    }
+
     const [[{ count }]] = await db.execute(
-      'SELECT COUNT(*) AS count FROM product_images WHERE product_id=?', [params.id]
+      'SELECT COUNT(*) AS count FROM product_images WHERE product_id=?', [productId]
     )
-    const available = 3 - count
+    const available = 3 - parseInt(count)
     if (available <= 0) return err('Product already has 3 images (maximum).')
 
     const formData = await req.formData()
@@ -32,13 +27,25 @@ export const POST = withAdmin(async (req, { params }) => {
     if (!files.length) return err('No images uploaded.')
 
     for (let i = 0; i < files.length; i++) {
-      const filename = await saveFile(files[i])
+      const file     = files[i]
+      const ext      = path.extname(file.name || '').toLowerCase() || '.jpg'
+      const filename = `${Date.now()}-${Math.floor(Math.random() * 1000000000)}${ext}`
+      const dest     = path.join(uploadsDir, filename)
+      const buffer   = Buffer.from(await file.arrayBuffer())
+
+      await writeFile(dest, buffer)
+
+      // Store only the bare filename in DB
       await db.execute(
-        'INSERT INTO product_images (product_id, image_url, sort_order) VALUES (?, ?, ?)',
-        [params.id, filename, count + i]
+        'INSERT INTO product_images (product_id, image_url, sort_order) VALUES (?,?,?)',
+        [productId, filename, String(parseInt(count) + i)]
       )
     }
-    const images = await fetchImages(params.id)
+
+    const images = await fetchImages(productId)
     return ok(images)
-  } catch (e) { return serverErr(e) }
+  } catch (e) {
+    console.error('Image upload error:', e)
+    return serverErr(e)
+  }
 })
