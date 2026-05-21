@@ -15,7 +15,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { user, isAuthenticated, setAuth } = useAuthStore()
   const [tab,      setTab]      = useState('login')
-  const [login,    setLogin]    = useState({ email:'admin@demo.com', password:'admin123' })
+  const [login,    setLogin]    = useState('')
   const [reg,      setReg]      = useState({ name:'', email:'', password:'', confirm:'' })
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} style={{ display:'flex', flexDirection:'column', gap:16 }}>
               <div>
                 <label style={{ display:'block', marginBottom:6, fontSize:14, fontWeight:600, color:'#0f172a' }}>Email</label>
-                <input type="email" required value={login.email} onChange={e=>setLogin({...login,email:e.target.value})} placeholder="admin@demo.com" style={inp} onFocus={focus} onBlur={blur} />
+                <input type="email" required value={login.email} onChange={e=>setLogin({...login,email:e.target.value})} placeholder="Enter your email" style={inp} onFocus={focus} onBlur={blur} />
               </div>
               <div>
                 <label style={{ display:'block', marginBottom:6, fontSize:14, fontWeight:600, color:'#0f172a' }}>Password</label>
